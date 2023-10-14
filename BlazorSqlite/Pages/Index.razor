@@ -1,0 +1,35 @@
+﻿@page "/"
+@using BlazorSqlite.Services;
+@using Microsoft.EntityFrameworkCore;
+@using SqliteDAL.DAL;
+@inject IDbContextFactory<BlazorContext> ContextFactory
+@inject DatabasePersistenceService DatabasePersistenceService
+
+<h1>Hello, world!</h1>
+<button type="button" @onclick="AddAccount">Add Account</button>
+<div>Number of accounts: @NumberOfAccounts</div>
+<div>Number of accounts: @NumberOfRoles</div>
+
+@code {
+    public int NumberOfAccounts { get; set; } = 0;
+    public int NumberOfRoles { get; set; } = 0;
+    protected override void OnInitialized()
+    {
+        var ctx = ContextFactory.CreateDbContext();
+        NumberOfAccounts =ctx.Accounts.Count();
+        NumberOfRoles = ctx.Roles.Count();
+    }
+
+    public async Task AddAccount()
+    {
+        var ctx = ContextFactory.CreateDbContext();
+        ctx.Accounts.Add(new()
+            {
+                Username = "adsfasdfasdfasdf",
+                Password = "asdfasdf"
+            });
+        ctx.SaveChanges();
+        await DatabasePersistenceService.PersistDatabaseAsync();
+        NumberOfAccounts =ctx.Accounts.Count();
+    }
+}
